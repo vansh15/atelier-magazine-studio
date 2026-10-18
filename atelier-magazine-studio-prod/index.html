@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://www.google-analytics.com; media-src 'self' data: blob:; script-src 'self' https://www.googletagmanager.com; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://app.posthog.com https://plausible.io;" />
+  <title>Atelier Edition — Production Collage Magazine Studio</title>
+  <meta name="description" content="Production-ready custom photo collage magazine creator with 14 creative collage templates, 4 editorial themes, in-slot photo pan/zoom/filters, stickers, IndexedDB auto-save, high-res print PDF export, and print checkout." />
+  <meta name="theme-color" content="#161311" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Atelier Edition — Custom Collage Magazine &amp; Keepsake Studio" />
+  <meta property="og:description" content="Design bespoke editorial photo magazines and keepsake books with 15 creative collage templates, 4 editorial themes, 300-DPI print PDF export, and instant checkout." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Atelier Edition — Custom Collage Magazine Studio" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23B8293D'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' fill='%23FAF7F2' font-family='Georgia,serif' font-weight='bold' font-size='38'%3EM%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&amp;family=Caveat:wght@500;700&amp;family=Cinzel:wght@500;700&amp;family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&amp;family=Instrument+Serif:ital@0;1&amp;family=JetBrains+Mono:wght@400;600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Special+Elite&amp;family=Syne:wght@700;800&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="index.css?v=20261018-ux2-15" />
+  <link rel="stylesheet" href="ui-refresh.css?v=20261018-ux2-15">
+</head>
+<body>
+  <!-- Clean Single-Row Production Top Bar -->
+  <header class="simple-header" id="simple-header">
+    <div class="header-left">
+      <span class="logo-mark">M</span>
+      <div class="brand-text-wrap">
+        <div class="title-row">
+          <h1 class="app-title" id="dynamic-book-title">Collage Magazine Studio</h1>
+          <span class="autosave-badge" id="autosave-status-badge" title="Your work is saved automatically in this browser">✓ Saved</span>
+        </div>
+        <p class="app-subtitle" id="active-style-explainer">Vogue Editorial: High-fashion Didone serif, crisp ivory paper, crimson rules &amp; drop-cap stories</p>
+      </div>
+    </div>
+
+    <!-- 4 Distinct Magazine Style Themes — one compact segmented control (short labels below 1600px via CSS) -->
+    <div class="style-pills" id="style-pills" role="group" aria-label="Magazine Aesthetic Theme">
+      <span class="control-label">Style</span>
+      <button type="button" class="style-pill active" data-theme="vogue" data-short="Vogue" title="Vogue Editorial — High-fashion glossy look, Bodoni serif masthead, drop caps &amp; crimson rules"><span class="pill-label">Vogue Editorial</span></button>
+      <button type="button" class="style-pill" data-theme="scrapbook" data-short="Scrapbook" title="Warm Scrapbook — Warm kraft textured paper, washi tape, handwritten notes &amp; cozy borders"><span class="pill-label">Warm Scrapbook</span></button>
+      <button type="button" class="style-pill" data-theme="kinfolk" data-short="Gallery" title="Minimal Gallery — Museum-grade alabaster whitespace, wide gallery frames &amp; warm film grade"><span class="pill-label">Minimal Gallery</span></button>
+      <button type="button" class="style-pill" data-theme="newspaper" data-short="Press" title="Vintage Press — Vintage broadsheet newsprint grain, double column rules &amp; archival monochrome/sepia"><span class="pill-label">Vintage Press</span></button>
+    </div>
+
+    <!-- Primary Production Actions: Undo/Redo group · secondary actions · primary CTA · ⋯ overflow (Guest / Shortcuts / QA Suite) -->
+    <div class="header-actions">
+      <input type="file" id="photo-upload-input" accept="image/jpeg,image/png,image/webp" multiple hidden />
+      <div class="history-btns" role="group" aria-label="History">
+        <button type="button" class="btn-icon" id="undo-btn" title="Undo (Ctrl+Z)" disabled>&#8630;</button>
+        <button type="button" class="btn-icon" id="redo-btn" title="Redo (Ctrl+Y)" disabled>&#8631;</button>
+      </div>
+      <button type="button" class="btn-upload" id="upload-photos-btn">
+        + Upload Photos
+      </button>
+      <button type="button" class="btn-secondary" id="view-all-pages-btn">
+        All Pages
+      </button>
+      <button type="button" class="btn-secondary" id="preview-book-btn" title="Full-screen flipbook preview">
+        Preview Book
+      </button>
+      <button type="button" class="btn-secondary" id="project-menu-btn" title="Save, import, or export the project and print PDF">
+        Save / Export
+      </button>
+      <button type="button" class="btn-primary" id="order-print-btn">
+        Order Print Copy
+      </button>
+      <button type="button" class="btn-icon" id="help-hint-btn" title="Shortcuts &amp; canvas gestures (?)" aria-label="Shortcuts and canvas gestures">?</button>
+      <div class="header-more" id="header-more">
+        <button type="button" class="btn-icon header-more-btn" id="header-more-btn" title="More options: account &amp; keyboard shortcuts" aria-haspopup="menu" aria-expanded="false" aria-controls="header-more-menu">&#8943;</button>
+        <div class="header-more-menu hidden" id="header-more-menu" role="menu" aria-label="More studio options">
+          <button type="button" class="btn-secondary" id="account-auth-btn" role="menuitem" title="Sign in, switch profile, or set a gift privacy PIN">
+            Guest
+          </button>
+          <button type="button" class="btn-secondary" id="shortcuts-help-btn" role="menuitem" title="Keyboard shortcuts (press ?)">
+            Shortcuts
+          </button>
+          <button type="button" class="btn-secondary hidden" id="open-qa-suite-btn" data-owner-only="true" role="menuitem" title="Owner Only: Open the production QA test runner">
+            QA Suite
+          </button>
+          <button type="button" class="btn-secondary hidden" id="open-telemetry-modal-btn" data-owner-only="true" role="menuitem" title="Owner Only: Open live analytics funnel, Web Vitals, privacy consent, and external publish guide">
+            Analytics &amp; Publish
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Distraction-Free Reader Mode Floating Bar (Hidden unless in Preview Book mode) -->
+  <div class="reader-mode-bar hidden" id="reader-mode-bar">
+    <!-- ws6-scrubber-navigation: one slim capsule — Prev · counter · dots · Next · Auto-Play · ⋯ · Exit -->
+    <span class="reader-badge" title="Full-Screen Magazine Preview">Preview</span>
+    <button type="button" class="btn-secondary" id="reader-prev-btn" title="Previous Spread">&#8592; Prev</button>
+    <span class="reader-spread-counter" id="reader-spread-indicator">Spread 1 of 6 &bull; Pages 1&ndash;2</span>
+    <div class="reader-spread-dots" id="reader-spread-dots" role="tablist" aria-label="Quick Jump Spreads"></div>
+    <button type="button" class="btn-secondary" id="reader-next-btn" title="Next Spread">Next &#8594;</button>
+    <button type="button" class="btn-secondary" id="reader-autoplay-btn" aria-pressed="false" title="Play the magazine as a slideshow">&#9654; Auto-Play</button>
+    <details class="reader-more" id="reader-more">
+      <summary class="reader-more-btn" title="More preview options: speed, loop, sound, crop marks, print" aria-label="More preview options">&#8943;</summary>
+      <div class="reader-more-menu" role="group" aria-label="Preview options">
+        <select id="reader-autoplay-speed-select" class="fmt-select spread-mini-select" title="Autoplay Flipbook Speed (Seconds per Spread)">
+          <option value="2">Speed: 2s</option>
+          <option value="3" selected>Speed: 3s</option>
+          <option value="5">Speed: 5s</option>
+          <option value="8">Speed: 8s</option>
+        </select>
+        <button type="button" class="btn-secondary active" id="reader-autoplay-loop-btn" aria-pressed="true" title="Loop the slideshow after the final spread">Loop</button>
+        <button type="button" class="btn-secondary" id="reader-sound-btn" aria-pressed="false" title="Toggle page-turn sound">Sound</button>
+        <button type="button" class="btn-secondary" id="reader-crop-marks-btn" title="Toggle 3mm bleed and printer crop marks">Crop Marks</button>
+        <button type="button" class="btn-secondary" id="reader-print-btn">Print / Save PDF</button>
+      </div>
+    </details>
+    <button type="button" class="btn-primary" id="exit-reader-btn">Exit Preview</button>
+  </div>
+
+  <!-- Main Workspace -->
+  <main class="workspace" id="workspace">
+    <!-- Top Spread Controls: Add/Remove Pages + Random OR Specific Collage Picker + Text + Stickers -->
+    <div class="spread-toolbar tb-open" id="spread-toolbar" data-tb-tab="layout">
+      <!-- ws3-toolbar-ia: Row 1 — always-visible spread context + tab strip -->
+      <div class="tb-primary" id="tb-primary-row">
+        <div class="page-count-controls">
+          <span class="page-location-badge" id="spread-indicator-label">Pages 1 – 2 of 12</span>
+          <button type="button" class="btn-page-action hidden" id="restore-template-items-btn" title="Bring back removed elements on this spread">&#8634; Restore removed</button>
+          <span class="tb-sep" aria-hidden="true"></span>
+          <button type="button" class="btn-page-action" id="move-spread-left-btn" title="Move this spread earlier in the magazine">&#8249; Move</button>
+          <button type="button" class="btn-page-action" id="move-spread-right-btn" title="Move this spread later in the magazine">Move &#8250;</button>
+          <button type="button" class="btn-page-action" id="add-spread-btn" title="Insert 2 new pages after this spread">+ Insert spread</button>
+          <button type="button" class="btn-page-action" id="btn-lock-spread" aria-pressed="false" title="Lock this spread against edits">Unlocked</button>
+          <span class="tb-sep" aria-hidden="true"></span>
+          <button type="button" class="btn-page-action danger btn-danger-ghost" id="remove-spread-btn" title="Delete this 2-page spread &middot; Undo with Ctrl+Z">Delete spread</button>
+        </div>
+        <div class="tb-tabs" id="tb-tabs" role="tablist" aria-label="Spread tool groups">
+          <button type="button" class="tb-tab is-active" role="tab" data-tb-tab="layout" aria-selected="true" aria-controls="tb-group-layout" title="Page layouts, text &amp; stickers">Layout</button>
+          <button type="button" class="tb-tab" role="tab" data-tb-tab="style" aria-selected="false" aria-controls="tb-group-style" title="Frame, paper, gradient &amp; folio">Style</button>
+          <button type="button" class="tb-tab" role="tab" data-tb-tab="type" aria-selected="false" aria-controls="tb-group-type" title="Story treatment, columns, alignment &amp; tracking">Type</button>
+          <button type="button" class="tb-tab" role="tab" data-tb-tab="photos" aria-selected="false" aria-controls="tb-group-photos" title="Photo fill, sequence, captions &amp; optics">Photos</button>
+          <button type="button" class="tb-tab" role="tab" data-tb-tab="book" aria-selected="false" aria-controls="tb-group-book" title="Templates, presets, TOC &amp; cover finishing">Book</button>
+          <button type="button" class="tb-tab" role="tab" data-tb-tab="more" aria-selected="false" aria-controls="tb-group-more" title="Guides, zoom, notes &amp; sound">More</button>
+        </div>
+      </div>
+
+      <!-- Row 2 (Layout tab): LEFT / RIGHT PAGE CONTROLS -->
+      <div class="tb-row2 tb-group is-open" id="tb-group-layout" data-tb-group="layout" role="tabpanel">
+        <div class="toolbar-item tb-seg">
+          <span class="control-label tb-seg-label" data-short="L" title="Left page">Left page</span>
+          <button type="button" class="btn-layout" id="random-left-layout-btn" title="Shuffle to a random collage layout for the left page">&#10227; Shuffle</button>
+          <button type="button" class="btn-choose-layout" id="choose-left-layout-btn" title="Choose a collage layout for the left page">Layout &#9662;</button>
+          <button type="button" class="btn-add-text" id="add-text-left-btn" title="Add a text block to the left page">+ Text</button>
+          <button type="button" class="btn-sticker" id="add-sticker-left-btn" title="Add a stamp, sticker or tape to the left page">+ Sticker</button>
+          <button type="button" class="btn-page-action btn-page-bg" id="set-bg-left-btn" title="Set or upload a custom background image for the left page">🖼 Page BG</button>
+        </div>
+        <span class="tb-sep" aria-hidden="true"></span>
+        <div class="toolbar-item tb-seg">
+          <span class="control-label tb-seg-label" data-short="R" title="Right page">Right page</span>
+          <button type="button" class="btn-layout" id="random-right-layout-btn" title="Shuffle to a random collage layout for the right page">&#10227; Shuffle</button>
+          <button type="button" class="btn-choose-layout" id="choose-right-layout-btn" title="Choose a collage layout for the right page">Layout &#9662;</button>
+          <button type="button" class="btn-add-text" id="add-text-right-btn" title="Add a text block to the right page">+ Text</button>
+          <button type="button" class="btn-sticker" id="add-sticker-right-btn" title="Add a stamp, sticker or tape to the right page">+ Sticker</button>
+          <button type="button" class="btn-page-action btn-page-bg" id="set-bg-right-btn" title="Set or upload a custom background image for the right page">🖼 Page BG</button>
+        </div>
+      </div>
+
+      <!-- ws3-toolbar-ia: Row 2 groups (Style / Type / Photos / Book / More) — one tab group visible at a time -->
+      <div class="toolbar-item tb-row2" id="spread-editorial-controls">
+        <div class="tb-group" id="tb-group-style" data-tb-group="style" role="tabpanel">
+          <label class="tb-field"><span>Frame</span>
+            <select id="spread-frame-select" class="fmt-select spread-mini-select" title="Page frame style">
+              <option value="none">None</option>
+              <option value="hairline">Hairline</option>
+              <option value="double">Double Rule</option>
+              <option value="corners">Corner Ticks</option>
+              <option value="mat">Gallery Mat</option>
+            </select>
+          </label>
+          <label class="tb-field"><span>Paper</span>
+            <select id="spread-paper-select" class="fmt-select spread-mini-select" title="Paper stock for this spread">
+              <option value="auto">Auto</option>
+              <option value="ivory">Ivory</option>
+              <option value="alabaster">Alabaster</option>
+              <option value="kraft">Kraft</option>
+              <option value="obsidian">Obsidian</option>
+              <option value="espresso">Espresso</option>
+            </select>
+          </label>
+          <label class="tb-field"><span>Gradient</span>
+            <select id="bg-gradient-select" class="fmt-select spread-mini-select" title="Background gradient">
+              <option value="none">None</option>
+              <option value="warm-sunset">Warm Sunset</option>
+              <option value="botanical-mist">Botanical Mist</option>
+              <option value="noir-vignette">Noir Vignette</option>
+              <option value="champagne-sheen">Champagne Sheen</option>
+            </select>
+          </label>
+          <label class="tb-field"><span>Folio</span>
+            <select id="folio-style-select" class="fmt-select spread-mini-select" title="Page numbering style">
+              <option value="editorial">Editorial</option>
+              <option value="minimal">Minimal</option>
+              <option value="roman">Roman</option>
+              <option value="hidden">Hidden</option>
+            </select>
+          </label>
+          <span class="tb-sep" aria-hidden="true"></span>
+          <button type="button" class="btn-page-action" id="style-left-bg-btn" title="Set custom background image for Left Page">🖼 Left BG</button>
+          <button type="button" class="btn-page-action" id="style-right-bg-btn" title="Set custom background image for Right Page">🖼 Right BG</button>
+          <span class="tb-sep" aria-hidden="true"></span>
+          <button type="button" class="btn-page-action" id="copy-spread-style-btn" title="Copy this spread's style">Copy Style</button>
+          <button type="button" class="btn-page-action" id="paste-spread-style-btn" title="Paste the copied style onto this spread" disabled>Paste Style</button>
+          <button type="button" class="btn-page-action" id="apply-style-all-btn" title="Apply this spread's style to every spread">Apply to All</button>
+        </div>
+        <div class="tb-group" id="tb-group-type" data-tb-group="type" role="tabpanel">
+          <label class="tb-field"><span>Story</span>
+            <select id="spread-story-style-select" class="fmt-select spread-mini-select" title="Story treatment">
+              <option value="standard">Standard</option>
+              <option value="dropcap">Drop-Cap</option>
+              <option value="pullquote">Pull-Quote</option>
+            </select>
+          </label>
+          <label class="tb-field"><span>Columns</span>
+            <select id="spread-columns-select" class="fmt-select spread-mini-select" title="Text columns">
+              <option value="1">1 Col</option>
+              <option value="2">2 Col</option>
+              <option value="3">3 Col</option>
+            </select>
+          </label>
+          <span class="tb-sep" aria-hidden="true"></span>
+          <button type="button" class="btn-page-action" id="spread-align-btn" title="Cycle text alignment: left, center, right">Align</button>
+          <button type="button" class="btn-page-action" id="spread-tracking-btn" title="Cycle headline tracking: normal, wide, tight">Tracking</button>
+        </div>
+        <div class="tb-group" id="tb-group-book" data-tb-group="book" role="tabpanel">
+          <label class="tb-field"><span>Template</span>
+            <select id="story-template-select" class="fmt-select spread-mini-select" title="Two-page story template">
+              <option value="">Choose…</option>
+              <option value="vogue-feature">Vogue Feature</option>
+              <option value="travel-dispatch">Travel Dispatch</option>
+              <option value="retrospective-essay">Retrospective Essay</option>
+              <option value="lookbook-catalog">Lookbook Catalog</option>
+            </select>
+          </label>
+          <label class="tb-field"><span>Preset</span>
+            <select id="spread-preset-select" class="fmt-select spread-mini-select" title="Saved preset or story template">
+              <option value="">None</option>
+              <option value="vogue-feature">Vogue Feature</option>
+              <option value="travel-dispatch">Travel Dispatch</option>
+              <option value="retrospective-essay">Retrospective Essay</option>
+              <option value="lookbook-catalog">Lookbook Catalog</option>
+            </select>
+          </label>
+          <button type="button" class="btn-page-action" id="save-spread-preset-btn" title="Save this spread as a named preset">Save Preset</button>
+          <button type="button" class="btn-page-action" id="batch-apply-preset-btn" title="Apply the selected preset to all unlocked spreads">Batch Apply</button>
+          <button type="button" class="btn-page-action" id="generate-toc-btn" title="Generate a table of contents">Auto TOC</button>
+          <span class="tb-sep" aria-hidden="true"></span>
+        </div>
+        <div class="tb-group" id="tb-group-more" data-tb-group="more" role="tabpanel">
+          <button type="button" class="btn-page-action" id="btn-toggle-guides" aria-pressed="false" title="Toggle layout guides (G)">Guides</button>
+          <label class="tb-field"><span>Mode</span>
+            <select id="guide-mode-select" class="fmt-select spread-mini-select" title="Guide type">
+              <option value="margins">Margins</option>
+              <option value="thirds">Rule of Thirds</option>
+              <option value="baseline">12pt Baseline</option>
+            </select>
+          </label>
+          <span class="tb-sep" aria-hidden="true"></span>
+          <button type="button" class="btn-page-action" id="btn-zoom-selection" title="Zoom to the selection">Zoom Selection</button>
+          <button type="button" class="btn-page-action" id="btn-zoom-fit" title="Reset zoom to fit the spread">Fit Spread</button>
+          <span class="tb-sep" aria-hidden="true"></span>
+          <button type="button" class="btn-page-action" id="btn-spread-notes" aria-expanded="false" data-has-note="false" title="Review notes for this spread">Notes</button>
+          <button type="button" class="btn-page-action" id="btn-toggle-sound" aria-pressed="false" title="Toggle page-turn sound">Sound</button>
+        </div>
+        <div class="tb-group" id="tb-group-photos" data-tb-group="photos" role="tabpanel">
+          <button type="button" class="btn-page-action" id="auto-fill-spread-btn" title="Fill empty slots on this spread">Auto-Fill</button>
+          <button type="button" class="btn-subtle" id="shuffle-spread-photos-btn" title="Shuffle photos across this spread">Shuffle</button>
+          <button type="button" class="btn-page-action danger btn-danger-ghost" id="clear-spread-photos-btn" title="Remove all photos from this spread">Clear all photos</button>
+          <button type="button" class="btn-page-action" id="extract-palette-btn" title="Extract swatches from this spread's photos">Palette</button>
+          <span class="tb-sep" aria-hidden="true"></span>
+        </div>
+        <div class="tb-group" data-tb-group="book" role="tabpanel" aria-labelledby="tb-group-book">
+          <label class="tb-field"><span>Foil</span>
+            <select id="cover-foil-select" class="fmt-select spread-mini-select" title="Cover foil stamping">
+              <option value="none">None</option>
+              <option value="gold-foil">24K Gold</option>
+              <option value="silver-foil">Sterling Silver</option>
+              <option value="rose-gold">Rose Gold</option>
+              <option value="holographic">Holographic Prism</option>
+            </select>
+          </label>
+          <input type="text" id="spine-title-input" class="order-input spread-mini-input" value="ATELIER EDITION" maxlength="48" placeholder="Spine Title" title="Spine title" />
+          <input type="text" id="issue-number-input" class="order-input spread-mini-input tb-input-sm" value="ISSUE NO. 01" maxlength="32" placeholder="Issue No." title="Issue or edition number" />
+          <button type="button" class="btn-page-action" id="generate-colophon-btn" title="Generate the back-cover colophon and barcode">Colophon</button>
+        </div>
+        <div class="tb-group" data-tb-group="photos" role="tabpanel" aria-labelledby="tb-group-photos">
+          <label class="tb-field"><span>Sequence</span>
+            <select id="photo-sequence-select" class="fmt-select spread-mini-select" title="Photo sequencing mode">
+              <option value="palette-harmony">Palette Harmony</option>
+              <option value="reverse-order">Reverse Order</option>
+              <option value="rotate-featured">Rotate Featured (+1)</option>
+            </select>
+          </label>
+          <button type="button" class="btn-page-action" id="btn-sequence-photos" title="Re-sequence photos across unlocked spreads">Run</button>
+          <label class="tb-field"><span>Captions</span>
+            <select id="caption-template-select" class="fmt-select spread-mini-select" title="Caption format">
+              <option value="archival-plate">Archival Plate</option>
+              <option value="minimal-index">Minimal Index</option>
+              <option value="story-date">Story &amp; Date</option>
+            </select>
+          </label>
+          <button type="button" class="btn-page-action" id="btn-generate-captions" title="Format captions across unlocked spreads">Format</button>
+          <span class="tb-sep" aria-hidden="true"></span>
+          <button type="button" class="btn-page-action" id="reset-spread-optics-btn" title="Reset photo adjustments on this spread">Reset Optics</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ux2: one-time dismissible editing tips strip (logic: initCanvasHints in app.js) -->
+    <div class="canvas-hint-strip hidden" id="canvas-hint-strip" role="note" aria-label="Editing tips">
+      <span class="canvas-hint-eyebrow">Tips</span>
+      <ul class="canvas-hint-list">
+        <li><kbd class="hint-glyph">Aa</kbd>Click any text to edit it</li>
+        <li><kbd class="hint-glyph">&times;</kbd>Hover an element and press &times; Remove &mdash; you can restore it</li>
+        <li><kbd class="hint-glyph">&#10021;</kbd>Drag photos to reposition &middot; stickers go anywhere</li>
+        <li><button type="button" class="canvas-hint-link" id="canvas-hint-shortcuts-btn"><kbd class="hint-glyph">?</kbd>All shortcuts</button></li>
+      </ul>
+      <button type="button" class="canvas-hint-dismiss" id="canvas-hint-dismiss-btn">Got it</button>
+    </div>
+
+    <!-- Collapsible Per-Spread Art-Director Review Notes Popover -->
+    <div class="spread-notes-panel hidden" id="spread-notes-panel" role="region" aria-label="Spread Review Notes">
+      <div class="spread-notes-header">
+        <strong id="spread-notes-title"><span id="spread-notes-title-label">Art-Director Notes — Spread 1</span></strong>
+        <div class="spread-notes-actions">
+          <button type="button" class="btn-page-action danger btn-danger-ghost" id="clear-spread-note-btn" title="Clear this spread's note">Clear</button>
+          <button type="button" class="btn-page-action" id="close-spread-notes-btn" title="Close notes" aria-label="Close notes">&times;</button>
+        </div>
+      </div>
+      <textarea id="spread-notes-textarea" rows="3" maxlength="500" placeholder="Review annotations for this spread — not included in print export."></textarea>
+      <span class="spread-notes-hint">Private to the proof · Esc to close</span>
+    </div>
+
+    <!-- Contextual Floating Text / Sticker Formatting & Orientation Bar -->
+    <div class="text-format-bar hidden" id="text-format-bar" role="toolbar" aria-label="Text &amp; Sticker Formatting">
+      <span class="format-bar-badge" id="format-bar-title">Text Style &amp; Orientation:</span>
+      <span class="format-bar-badge multi-select-pill hidden" id="multi-select-count-pill">1 Selected</span>
+
+      <div class="ctx-seg" data-label="Type">
+      <select id="fmt-font-select" class="fmt-select" title="Font Family">
+        <option value="'Bodoni Moda', Georgia, serif">Vogue Didone Serif</option>
+        <option value="'Cormorant Garamond', Georgia, serif">Editorial Garamond</option>
+        <option value="'Plus Jakarta Sans', sans-serif">Modern Clean Sans</option>
+        <option value="'Caveat', cursive">Handwritten Marker</option>
+        <option value="'Syne', sans-serif">Bold Poster Display</option>
+        <option value="'Special Elite', monospace">Vintage Typewriter</option>
+      </select>
+
+      <div class="fmt-group" title="Size">
+        <button type="button" class="fmt-btn" id="fmt-size-down-btn">A&minus;</button>
+        <span class="fmt-val" id="fmt-size-label">20px</span>
+        <button type="button" class="fmt-btn" id="fmt-size-up-btn">A+</button>
+      </div>
+
+      <div class="fmt-group" id="fmt-typo-group">
+        <button type="button" class="fmt-btn" id="fmt-bold-btn" title="Bold"><b>B</b></button>
+        <button type="button" class="fmt-btn" id="fmt-italic-btn" title="Italic"><i>I</i></button>
+        <button type="button" class="fmt-btn" id="fmt-upper-btn" title="Uppercase">TT</button>
+        <button type="button" class="fmt-btn" id="fmt-align-btn" title="Cycle Alignment">Align</button>
+        <button type="button" class="fmt-btn ctx-adv" id="fmt-tracking-btn" title="Cycle tracking: normal, wide, tight">Track</button>
+        <select id="fmt-line-height-select" class="fmt-select ctx-adv" title="Line height">
+          <option value="1.0">Line 1.0</option>
+          <option value="1.2">Line 1.2</option>
+          <option value="1.4" selected>Line 1.4</option>
+          <option value="1.6">Line 1.6</option>
+          <option value="1.8">Line 1.8</option>
+          <option value="2.0">Line 2.0</option>
+        </select>
+        <button type="button" class="fmt-btn ctx-adv" id="fmt-dropcap-btn" aria-pressed="false" title="Toggle drop cap">Drop Cap</button>
+        <button type="button" class="fmt-btn ctx-adv" id="fmt-quote-btn" title="Toggle pull-quote rule">Quote</button>
+        <select id="fmt-quote-style-select" class="fmt-select ctx-adv" title="Pull-quote style">
+          <option value="none">Quote Style</option>
+          <option value="crimson-rule">Crimson Rule</option>
+          <option value="double-bracket">Double Bracket</option>
+          <option value="serif-hang">Serif Hang</option>
+          <option value="gold-callout">Gold Callout</option>
+        </select>
+        <button type="button" class="fmt-btn ctx-adv" id="fmt-columns-btn" title="Cycle text columns: 1, 2, 3">Cols: 1</button>
+      </div>
+      </div><!-- /ctx-seg Type -->
+
+      <div class="ctx-seg" data-label="Color">
+      <div class="fmt-group" id="swatch-palette-bar" title="Swatch palette">
+        <div class="fmt-swatches" id="fmt-color-swatches" title="Text / Backdrop Swatches">
+          <button type="button" class="color-swatch" data-color="#FFFFFF" style="background:#FFFFFF;" title="White"></button>
+          <button type="button" class="color-swatch" data-color="#181513" style="background:#181513;" title="Espresso Ink"></button>
+          <button type="button" class="color-swatch" data-color="#FFD166" style="background:#FFD166;" title="Editorial Gold"></button>
+          <button type="button" class="color-swatch" data-color="#9A2B3B" style="background:#9A2B3B;" title="Crimson"></button>
+          <button type="button" class="color-swatch" data-color="#1D4ED8" style="background:#1D4ED8;" title="Cobalt"></button>
+        </div>
+        <input type="color" id="custom-swatch-input" value="#D97706" title="Pick a custom color" style="width:18px;height:18px;padding:0;border:none;background:transparent;cursor:pointer;" />
+        <button type="button" class="fmt-btn ctx-adv" id="add-swatch-btn" title="Add custom swatch">+ Swatch</button>
+        <button type="button" class="fmt-btn ctx-adv" id="swatch-target-btn" data-target="text" title="Apply swatches to text or backdrop">Target: Text</button>
+      </div>
+
+      <div class="fmt-group ctx-adv" id="fmt-backdrop-group">
+        <button type="button" class="fmt-btn" id="fmt-bg-cycle-btn" title="Cycle backdrop: none, scrim, paper, gold">
+          Backdrop
+        </button>
+      </div>
+      </div><!-- /ctx-seg Color -->
+
+      <div class="ctx-seg ctx-multi" data-label="Group">
+      <div class="fmt-group" id="fmt-align-distribute-group" title="Align and distribute selection">
+        <button type="button" class="fmt-btn" id="align-left-btn" title="Align Left">&#8676;</button>
+        <button type="button" class="fmt-btn" id="align-center-x-btn" title="Align Horizontal Center">&#8596;</button>
+        <button type="button" class="fmt-btn" id="align-right-btn" title="Align Right">&#8677;</button>
+        <button type="button" class="fmt-btn" id="align-top-btn" title="Align Top">&#8673;</button>
+        <button type="button" class="fmt-btn" id="align-middle-y-btn" title="Align Vertical Middle">&#8597;</button>
+        <button type="button" class="fmt-btn" id="align-bottom-btn" title="Align Bottom">&#8675;</button>
+        <button type="button" class="fmt-btn" id="distribute-h-btn" title="Distribute horizontally (3+ elements)" disabled>&#8644; Dist H</button>
+        <button type="button" class="fmt-btn" id="distribute-v-btn" title="Distribute vertically (3+ elements)" disabled>&#8645; Dist V</button>
+        <button type="button" class="fmt-btn" id="btn-group-elements" title="Group selection (Ctrl+G)">Group</button>
+        <button type="button" class="fmt-btn" id="btn-ungroup-elements" title="Ungroup selection">Ungroup</button>
+      </div>
+      </div><!-- /ctx-seg Group -->
+
+      <div class="ctx-seg" data-label="Arrange">
+      <div class="fmt-group">
+        <button type="button" class="fmt-btn" id="fmt-orient-btn" title="Cycle orientation: level, tilt left, tilt right, vertical">
+          Orient
+        </button>
+        <input type="range" id="fmt-rotate-slider" min="-180" max="180" value="0" class="fmt-slider" title="Rotation angle" />
+        <span class="fmt-val" id="fmt-rotate-label">0°</span>
+      </div>
+
+      <div class="fmt-group ctx-adv" id="fmt-size-box-group" title="Width, height and aspect lock">
+        <input type="number" id="el-width-input" min="36" max="400" value="160" class="fmt-num-input" title="Element Width (px)" />
+        <span class="fmt-val">&times;</span>
+        <input type="number" id="el-height-input" min="24" max="560" value="44" class="fmt-num-input" title="Element Height (px)" />
+        <button type="button" id="btn-lock-aspect" class="fmt-btn" aria-pressed="false" title="Lock aspect ratio">Ratio</button>
+      </div>
+
+      <div class="fmt-group ctx-adv" id="fmt-opacity-shadow-group" title="Opacity and shadow">
+        <input type="range" id="el-opacity-slider" min="10" max="100" value="100" class="fmt-slider" title="Opacity (10–100%)" />
+        <span class="fmt-val" id="el-opacity-label">100%</span>
+        <select id="el-shadow-select" class="fmt-select" title="Shadow">
+          <option value="none">Shadow</option>
+          <option value="soft-float">Soft Float</option>
+          <option value="letterpress">Letterpress</option>
+          <option value="deep-gallery">Deep Gallery</option>
+        </select>
+      </div>
+      </div><!-- /ctx-seg Arrange -->
+
+      <div class="ctx-seg" data-label="Layer">
+      <div class="fmt-group" id="fmt-layer-group" title="Layer order and duplicate">
+        <button type="button" class="fmt-btn" id="fmt-layer-front-btn" title="Bring to Front (] key)">&#8679; Front</button>
+        <button type="button" class="fmt-btn ctx-adv" id="fmt-layer-forward-btn" title="Bring forward">&uarr;</button>
+        <span class="fmt-val ctx-adv" id="fmt-layer-label" title="Layer position">1/1</span>
+        <button type="button" class="fmt-btn ctx-adv" id="fmt-layer-backward-btn" title="Send backward">&darr;</button>
+        <button type="button" class="fmt-btn" id="fmt-layer-back-btn" title="Send to Back ([ key)">&#8681; Back</button>
+        <button type="button" class="fmt-btn" id="fmt-duplicate-btn" title="Duplicate (Ctrl+D)">Duplicate</button>
+      </div>
+      </div><!-- /ctx-seg Layer -->
+
+      <div class="ctx-seg ctx-seg-end">
+      <button type="button" class="fmt-btn danger btn-danger-ghost" id="fmt-delete-text-btn" title="Remove this element (Delete)">
+        Remove
+      </button>
+      <button type="button" class="fmt-btn ctx-more-btn" id="tf-more-btn" aria-expanded="false" title="Show tracking, line-height, drop-cap, quote, columns, size, opacity, shadow &amp; layer order">More ▾</button>
+      </div>
+    </div>
+
+    <!-- Contextual In-Slot Photo Framing (Zoom, Pan, Filter, Caption & Swap) Bar -->
+    <div class="text-format-bar hidden" id="photo-crop-bar" role="toolbar" aria-label="Photo Crop, Zoom &amp; Filter Controls">
+      <span class="format-bar-badge">Photo</span>
+
+      <div class="ctx-seg" data-label="Frame">
+      <div class="fmt-group" title="Zoom photo inside frame (50%–300%)">
+        <button type="button" class="fmt-btn" id="crop-fit-btn" aria-pressed="false" title="Toggle between Fit Full Photo (zoomed out, no crop) and Fill Frame">Fit Full</button>
+        <span class="fmt-val">Zoom</span>
+        <input type="range" id="crop-zoom-slider" min="50" max="300" value="100" class="fmt-slider" />
+        <span class="fmt-val" id="crop-zoom-label">100%</span>
+      </div>
+
+      <div class="fmt-group" title="Pan, flip or rotate photo">
+        <button type="button" class="fmt-btn" id="crop-pan-left-btn" title="Pan Left">&#8592;</button>
+        <button type="button" class="fmt-btn" id="crop-pan-up-btn" title="Pan Up">&#8593;</button>
+        <button type="button" class="fmt-btn" id="crop-pan-down-btn" title="Pan Down">&#8595;</button>
+        <button type="button" class="fmt-btn" id="crop-pan-right-btn" title="Pan Right">&#8594;</button>
+        <button type="button" class="fmt-btn" id="crop-flip-h-btn" title="Flip horizontally">&#8596; Flip</button>
+        <button type="button" class="fmt-btn ctx-adv" id="btn-flip-v" aria-pressed="false" title="Flip vertically">&#8597; Flip V</button>
+        <button type="button" class="fmt-btn ctx-adv" id="crop-rotate-btn" title="Rotate 90°">&#8635; 90°</button>
+        <button type="button" class="fmt-btn" id="crop-reset-btn" title="Reset zoom, pan, flip and rotation">Reset</button>
+      </div>
+      </div><!-- /ctx-seg Frame -->
+
+      <div class="ctx-seg" data-label="Look">
+      <select id="crop-filter-select" class="fmt-select" title="Photo filter">
+        <option value="none">Filter</option>
+        <option value="bw">B&amp;W Editorial</option>
+        <option value="warm">Warm Kodak Portra</option>
+        <option value="sepia">Vintage Archival Sepia</option>
+        <option value="vivid">High-Contrast Gloss</option>
+        <option value="matte">Soft Fine-Art Matte</option>
+        <option value="cool">Cool Polar Chrome</option>
+        <option value="vintage">Aged Film Grain</option>
+        <option value="dramatic">Dramatic Noir</option>
+        <option value="fade">Pastel Fade</option>
+      </select>
+
+      <div class="fmt-group" title="Brightness (70–130%)">
+        <span class="fmt-val" title="Brightness">☀︎</span>
+        <input type="range" id="crop-brightness-slider" min="70" max="130" value="100" class="fmt-slider" />
+        <span class="fmt-val" id="crop-brightness-label">100%</span>
+      </div>
+
+      <div class="fmt-group" title="Contrast (70–130%)">
+        <span class="fmt-val" title="Contrast">◐</span>
+        <input type="range" id="crop-contrast-slider" min="70" max="130" value="100" class="fmt-slider" />
+        <span class="fmt-val" id="crop-contrast-label">100%</span>
+      </div>
+
+      <select id="slot-duotone-select" class="fmt-select ctx-adv" title="Duotone grade" data-ctx-moved="look">
+        <option value="none">Duotone</option>
+        <option value="crimson-ivory">Crimson &amp; Ivory</option>
+        <option value="cobalt-gold">Cobalt &amp; Gold</option>
+        <option value="emerald-cream">Emerald &amp; Cream</option>
+        <option value="noir-amber">Noir &amp; Amber</option>
+        <option value="violet-peach">Violet &amp; Peach</option>
+      </select>
+      <button type="button" class="fmt-btn ctx-adv" id="crop-vignette-btn" aria-pressed="false" title="Toggle vignette">Vignette</button>
+      <button type="button" class="fmt-btn ctx-adv" id="crop-grain-btn" aria-pressed="false" title="Toggle film grain">Grain</button>
+      </div><!-- /ctx-seg Look -->
+
+      <div class="ctx-seg ctx-adv" data-label="Finish">
+      <select id="crop-radius-select" class="fmt-select" title="Corner radius">
+        <option value="0px">Corners</option>
+        <option value="8px">Soft</option>
+        <option value="18px">Rounded</option>
+        <option value="50%">Oval</option>
+      </select>
+
+      <select id="slot-clip-shape-select" class="fmt-select" title="Shape mask">
+        <option value="none">Mask</option>
+        <option value="arch">Arch</option>
+        <option value="circle">Circle</option>
+        <option value="pill">Pill</option>
+        <option value="hexagon">Hexagon</option>
+        <option value="polaroid">Polaroid</option>
+        <option value="full-bleed">Full-Bleed</option>
+      </select>
+
+      <select id="crop-border-select" class="fmt-select" title="Frame border">
+        <option value="default">Border</option>
+        <option value="none">None</option>
+        <option value="white">White</option>
+        <option value="gold">Gold</option>
+        <option value="ink">Ink</option>
+      </select>
+
+      <select id="slot-corner-mount-select" class="fmt-select" title="Corner mounts and tape">
+        <option value="none">Mount</option>
+        <option value="gold-corners">Gold Corners</option>
+        <option value="obsidian-corners">Obsidian Corners</option>
+        <option value="washi-tape-top">Washi Tape Top</option>
+        <option value="museum-frame">Museum Frame</option>
+      </select>
+
+      <select id="slot-watermark-select" class="fmt-select" title="Camera date or EXIF watermark">
+        <option value="none">Watermark</option>
+        <option value="date-amber">'26 Date</option>
+        <option value="exif-mono">35mm EXIF</option>
+        <option value="custom">Custom</option>
+      </select>
+      <input type="text" id="slot-watermark-text-input" class="fmt-caption-input" placeholder="Watermark text…" title="Custom watermark text" maxlength="32" style="width:96px;" />
+      </div><!-- /ctx-seg Finish -->
+
+      <div class="ctx-seg ctx-adv" data-label="Caption">
+      <input type="text" id="crop-caption-input" class="fmt-caption-input" placeholder="Caption…" title="Caption for this photo slot" maxlength="80" />
+      <button type="button" class="fmt-btn" id="crop-caption-color-btn" title="Cycle caption color">Cap Color</button>
+      <button type="button" class="fmt-btn" id="crop-caption-size-btn" title="Cycle caption size: S, M, L">Cap Size</button>
+      </div><!-- /ctx-seg Caption -->
+
+      <div class="ctx-seg" data-label="Photo">
+      <span class="crop-dpi-warning-badge hidden" id="crop-dpi-warning-badge" title="Effective print resolution is below 120 DPI">Low DPI</span>
+      <button type="button" class="fmt-btn" id="crop-swap-photo-btn" title="Choose a different photo for this frame">Replace photo</button>
+      <button type="button" class="fmt-btn" id="crop-swap-slot-btn" title="Click another frame to exchange photos">&#8644; Swap</button>
+      <button type="button" class="fmt-btn ctx-adv" id="crop-add-text-btn" title="Add a text block over this photo">+ Text</button>
+      </div><!-- /ctx-seg Photo -->
+
+      <div class="ctx-seg ctx-seg-end">
+      <button type="button" class="fmt-btn danger btn-danger-ghost" id="crop-clear-slot-btn" title="Empty this frame but keep it">Clear photo</button>
+      <button type="button" class="fmt-btn danger btn-danger-ghost" id="crop-delete-slot-btn" title="Remove this photo frame &mdash; restorable (Delete)">Remove Frame</button>
+      <button type="button" class="fmt-btn ctx-more-btn" id="pc-more-btn" aria-expanded="false" title="Show duotone, vignette, grain, corners, mask, border, mount, watermark &amp; caption">More ▾</button>
+      <button type="button" class="fmt-btn ctx-done" id="crop-close-btn">Done</button>
+      </div>
+    </div>
+
+    <!-- Center Open Book Stage -->
+    <div class="book-stage" id="book-stage">
+      <button type="button" class="page-turn-btn prev" id="prev-spread-btn" aria-label="Previous Spread" title="Previous spread (←)">
+        &#8249;
+      </button>
+
+      <!-- ws5-book-stage: .book-scaler keeps the spread at its native 920×632 print geometry
+           and scales the whole object to fit the stage (no per-page squashing). -->
+      <div class="book-scaler" id="book-scaler">
+        <!-- The Open 2-Page Magazine Spread -->
+        <div class="open-magazine" id="open-magazine" data-theme="vogue">
+          <article class="mag-page page-verso" id="mag-page-left"></article>
+          <div class="mag-spine" aria-hidden="true"></div>
+          <article class="mag-page page-recto" id="mag-page-right"></article>
+        </div>
+      </div>
+
+      <button type="button" class="page-turn-btn next" id="next-spread-btn" aria-label="Next Spread" title="Next spread (→)">
+        &#8250;
+      </button>
+    </div>
+
+    <!-- Bottom Dynamic Pages Scrubber -->
+    <div class="bottom-bar-wrap" id="bottom-bar-wrap">
+      <nav class="pages-scrubber" id="pages-scrubber" aria-label="Magazine Spreads Navigation"></nav>
+      <button type="button" class="scrubber-add-btn" id="bottom-add-spread-btn" title="Insert 2 new pages after this spread">
+        + Insert spread
+      </button>
+    </div>
+  </main>
+
+  <!-- 1. Visual Collage Template Chooser Modal (15 Layouts) -->
+  <div class="modal-overlay hidden" id="collage-picker-modal" role="dialog" aria-modal="true" aria-labelledby="picker-modal-heading">
+    <div class="modal-sheet ws7-sheet ws8-sheet modal-lg">
+      <div class="modal-top">
+        <div class="modal-title-block">
+          <span class="modal-eyebrow">Layout · 15 collages</span>
+          <h2 id="picker-modal-heading">Choose a Specific Collage Layout</h2>
+          <p id="picker-modal-sub">Select any of the 15 creative multi-photo collage layouts below, or click Randomize.</p>
+        </div>
+        <div class="modal-top-actions">
+          <button type="button" class="modal-close" id="close-picker-modal-btn" aria-label="Close">&times;</button>
+        </div>
+      </div>
+      <div class="collage-picker-grid" id="collage-picker-grid"></div>
+      <div class="modal-foot">
+        <span class="modal-foot-note">Click a layout to apply it to this page.</span>
+        <button type="button" class="btn-upload" id="modal-random-pick-btn">Random Layout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Decorative Stickers, Stamps, Shapes & Washi Tape Drawer Modal -->
+  <div class="modal-overlay hidden" id="stickers-modal" role="dialog" aria-modal="true" aria-labelledby="stickers-modal-heading">
+    <div class="modal-sheet ws7-sheet ws8-sheet modal-md" data-sticker-tab="stickers">
+      <div class="modal-top">
+        <div class="modal-title-block">
+          <span class="modal-eyebrow">Stickers · shapes · stamps · washi</span>
+          <h2 id="stickers-modal-heading">Add a sticker, shape or stamp</h2>
+          <p>Pick anything below &mdash; it lands on the page selected here; drag, resize, recolor or rotate it straight away.</p>
+          <label class="tb-field sticker-target-chip" id="sticker-target-chip">
+            <span>Adding to</span>
+            <select id="sticker-target-page-select" class="fmt-select" title="Choose which page receives the sticker or shape" aria-describedby="sticker-target-chip"></select>
+          </label>
+        </div>
+        <div class="modal-top-actions">
+          <button type="button" class="modal-close" id="close-stickers-modal-btn" aria-label="Close">&times;</button>
+        </div>
+      </div>
+      <div class="ws8-tabs" id="stickers-modal-tabs" role="tablist" aria-label="Sticker categories">
+        <button type="button" class="ws8-tab is-active" role="tab" aria-selected="true" data-sticker-tab="stickers" aria-controls="stickers-picker-grid">Stickers</button>
+        <button type="button" class="ws8-tab" role="tab" aria-selected="false" data-sticker-tab="shapes" aria-controls="quick-shapes-section">Shapes</button>
+        <button type="button" class="ws8-tab" role="tab" aria-selected="false" data-sticker-tab="text" aria-controls="custom-text-sticker-bar">Text &amp; Emoji</button>
+        <button type="button" class="ws8-tab" role="tab" aria-selected="false" data-sticker-tab="upload" aria-controls="qr-stamp-creator-bar">Upload / QR</button>
+      </div>
+      <div class="stickers-picker-grid" id="stickers-picker-grid"></div>
+      <div class="quick-shapes-section" id="quick-shapes-section">
+        <div class="quick-shapes-header">
+          <span class="modal-eyebrow">1-Click Vector Shapes &amp; Frames</span>
+          <span class="quick-shapes-sub">Click a shape to place it. Recolor with the swatches in the bar above the page.</span>
+        </div>
+        <div class="quick-shapes-grid" id="quick-shapes-grid"></div>
+      </div>
+      <details class="ws8-creator" id="ws8-sticker-creator" open>
+        <summary><span class="modal-eyebrow">Custom Builder</span> Create custom shape, text sticker, uploaded graphic or QR stamp</summary>
+      <div class="custom-badge-creator-bar" id="custom-badge-creator-bar" data-panel-label="Advanced: add a label or custom fill">
+        <select id="badge-shape-select" class="fmt-select" title="Vector Badge / Shape">
+          <option value="wax-seal">Wax Seal</option>
+          <option value="arch-crest">Arch Crest</option>
+          <option value="gold-rosette">Gold Rosette</option>
+          <option value="minimal-monogram">Minimal Monogram</option>
+          <option value="heart">Heart Shape</option>
+          <option value="star">Starburst / Star</option>
+          <option value="sparkle">Editorial Sparkle ✦</option>
+          <option value="circle">Solid Circle</option>
+          <option value="pill">Capsule / Pill</option>
+          <option value="arch">Gallery Arch</option>
+          <option value="diamond">Diamond Lozenge</option>
+          <option value="ribbon">Banner Ribbon</option>
+          <option value="polaroid-frame">Polaroid Frame</option>
+          <option value="washi-strip">Washi Tape Strip</option>
+          <option value="arrow">Directional Arrow</option>
+          <option value="speech-bubble">Speech Bubble</option>
+        </select>
+        <input type="text" id="badge-text-input" class="fmt-caption-input" maxlength="24" value="" placeholder="Optional label (leave blank for a pure shape)" title="Shape / Badge Text (clear for pure shape)" />
+        <input type="color" id="badge-color-input" value="#8F2433" title="Shape / Badge Fill Color" />
+        <button type="button" class="btn-upload" id="btn-add-custom-badge">Add to page</button>
+      </div>
+      <div class="custom-badge-creator-bar" id="custom-text-sticker-bar">
+        <input type="text" id="custom-text-sticker-input" class="fmt-caption-input" maxlength="36" value="" placeholder="Type a word or emoji… e.g. BEST DAY ★" title="Custom Sticker Text or Emoji" />
+        <select id="custom-text-sticker-style" class="fmt-select" title="Sticker Style">
+          <option value="sticker-type-washi">Washi Tape Strip</option>
+          <option value="sticker-type-ticket">Cinema Stub</option>
+          <option value="sticker-type-postmark">Postmark Ring</option>
+          <option value="sticker-type-wax">Red Wax Stamp</option>
+          <option value="sticker-type-heart">Rose Pill Tag</option>
+          <option value="sticker-type-film">35mm Film Label</option>
+        </select>
+        <button type="button" class="btn-upload" id="btn-add-custom-text-sticker">Add to page</button>
+      </div>
+      <div class="custom-badge-creator-bar" id="sticker-upload-bar">
+        <span class="sticker-upload-hint">Your own PNG, SVG or WebP becomes a movable sticker.</span>
+        <input type="file" id="custom-sticker-file-input" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden />
+        <button type="button" class="btn-secondary" id="btn-upload-custom-sticker" title="Upload a PNG, SVG, or WebP image as a movable sticker">Upload image sticker</button>
+      </div>
+      <div class="custom-badge-creator-bar" id="qr-stamp-creator-bar" data-panel-label="QR memory stamp">
+        <input type="url" id="qr-url-input" class="fmt-caption-input ws8-input-url" maxlength="160" value="https://atelier.keepsake/playlist" placeholder="https://..." title="QR Memory Stamp Destination URL" />
+        <input type="text" id="qr-label-input" class="fmt-caption-input ws8-input-label" maxlength="28" value="SCAN MEMORY" placeholder="Stamp label..." title="QR Stamp Caption Label" />
+        <button type="button" class="btn-upload" id="btn-add-qr-stamp">Add QR stamp</button>
+      </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- 3. All Pages Overview Modal -->
+  <div class="modal-overlay hidden" id="all-pages-modal" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
+    <div class="modal-sheet">
+      <div class="modal-top">
+        <div>
+          <h2 id="modal-heading">Contact Sheet</h2>
+          <p>Every page of your book at a glance — click any page to jump straight to it.</p>
+        </div>
+        <div class="modal-top-actions">
+          <button type="button" class="btn-upload" id="modal-add-pages-btn" title="Insert 2 new pages after the current spread">+ Add 2 Pages</button>
+          <button type="button" class="modal-close" id="close-all-pages-btn">&times;</button>
+        </div>
+      </div>
+      <div class="all-pages-grid" id="all-pages-grid"></div>
+    </div>
+  </div>
+
+  <!-- 4. Save / Export Project & Print PDF Production Suite Modal -->
+  <div class="modal-overlay hidden" id="project-modal" role="dialog" aria-modal="true" aria-labelledby="project-modal-heading">
+    <div class="modal-sheet modal-medium ws7-sheet">
+      <div class="modal-top">
+        <div class="modal-title-block">
+          <span class="modal-eyebrow">Atelier Edition · Export</span>
+          <h2 id="project-modal-heading">Export &amp; Print</h2>
+          <p>Auto-saved in this browser. Print the book, download a backup, or export press-ready files.</p>
+        </div>
+        <button type="button" class="modal-close" id="close-project-modal-btn" aria-label="Close">&times;</button>
+      </div>
+      <div class="production-suite-body">
+        <!-- Tier 1 · Primary action -->
+        <div class="prod-card prod-card--hero">
+          <div class="prod-card-head">
+            <h3>Print &amp; Export</h3>
+            <p>A multi-page, 300-DPI PDF of the whole book. Turn on crop marks if sending to a commercial print shop.</p>
+          </div>
+          <div class="prod-hero-actions">
+            <button type="button" class="btn-primary" id="modal-print-pdf-btn">Print / Save Full Book as PDF</button>
+            <label class="prod-checkbox-row">
+              <input type="checkbox" id="print-crop-marks-toggle" />
+              <span>Include crop marks &amp; 3 mm bleed guides</span>
+            </label>
+          </div>
+          <div class="prod-btn-row prod-btn-row--ghost">
+            <span class="prod-row-label">Other formats</span>
+            <button type="button" class="btn-secondary" id="export-spread-png-btn">Current spread · PNG</button>
+            <button type="button" class="btn-secondary action-card-btn" id="export-contact-sheet-btn">Contact sheet · PNG</button>
+            <button type="button" class="btn-secondary" id="btn-export-html-keepsake">Interactive keepsake · HTML</button>
+          </div>
+        </div>
+
+        <!-- Tier 2 · Readiness status (stats + preflight) -->
+        <div class="prod-card prod-card--status" id="export-project-stats-card">
+          <div class="prod-card-head">
+            <h3>Readiness</h3>
+          </div>
+          <div class="project-stats-grid" id="project-analytics-panel">
+            <div class="stat-pill"><span>Spreads / Pages</span><strong id="stat-spreads-pages">6 Spreads • 12 Pages</strong></div>
+            <div class="stat-pill"><span>Photo slots</span><strong id="stat-photo-slots">48 / 48 Populated</strong></div>
+            <div class="stat-pill"><span>Uploaded photos</span><strong id="stat-user-photos">0 Uploaded</strong></div>
+            <div class="stat-pill"><span>Word count</span><strong id="stat-word-count">0 Words</strong></div>
+            <div class="stat-pill"><span>Locked spreads</span><strong id="stat-locked-spreads">0 Locked</strong></div>
+            <div class="stat-pill"><span>Review notes</span><strong id="stat-spread-notes">0 Notes</strong></div>
+            <div class="stat-pill"><span>Floating layers</span><strong id="stat-floating-elements">12 Elements (12 Text • 0 Stickers)</strong></div>
+            <div class="stat-pill"><span>Text layers</span><strong id="stat-text-count">12 Text Layers</strong></div>
+            <div class="stat-pill"><span>Stickers</span><strong id="stat-sticker-count">0 Stickers</strong></div>
+          </div>
+          <div class="export-preflight-banner" id="export-empty-slots-warning" data-status="ready">
+            <span id="export-empty-slots-text">✓ All photo slots across all 12 pages are populated and print-ready.</span>
+            <button type="button" class="btn-upload hidden" id="modal-autofill-empty-btn">Auto-Fill Empty Slots</button>
+          </div>
+        </div>
+
+        <div class="prod-card prod-card--status" id="preflight-audit-card" data-preflight-status="pass">
+          <div class="prod-card-head">
+            <h3>Print Preflight</h3>
+            <p id="preflight-summary-text">✓ Print Preflight Passed: 0 issues detected across 300-DPI resolution, safe margins, photo slots, and editorial copy.</p>
+          </div>
+          <ul class="preflight-issues-list" id="preflight-issues-list"></ul>
+          <div class="prod-btn-row">
+            <button type="button" class="btn-secondary" id="btn-run-preflight-audit">Run preflight audit</button>
+            <button type="button" class="btn-upload" id="btn-autofix-safe-margins">Auto-fix safe margins</button>
+          </div>
+        </div>
+
+        <!-- Tier 3 · Housekeeping (collapsed) -->
+        <details class="prod-more" id="project-more-tools">
+          <summary>More tools <span class="prod-more-hint">Find &amp; replace · Checkpoints</span></summary>
+        <div class="prod-card" id="project-find-replace-card">
+          <div class="prod-card-head">
+            <h3>Find &amp; Replace</h3>
+            <p>Replace names, dates or recurring phrases across all unlocked spreads in one undoable step.</p>
+          </div>
+          <div class="prod-form-grid">
+            <input type="text" id="find-copy-input" class="fmt-caption-input prod-input" placeholder="Find text..." maxlength="80" />
+            <input type="text" id="replace-copy-input" class="fmt-caption-input prod-input" placeholder="Replace with..." maxlength="80" />
+            <button type="button" class="btn-secondary" id="btn-replace-copy-all">Replace across unlocked spreads</button>
+            <label class="prod-checkbox-row prod-form-span">
+              <input type="checkbox" id="replace-copy-case-checkbox" />
+              <span>Case-sensitive</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="prod-card" id="project-checkpoints-card">
+          <div class="prod-card-head">
+            <h3>Checkpoints</h3>
+            <p>Name a milestone and restore it later, non-destructively (up to 10).</p>
+          </div>
+          <div class="prod-form-grid">
+            <input type="text" id="checkpoint-name-input" class="fmt-caption-input prod-input" placeholder="e.g. Before cover redesign" maxlength="60" />
+            <button type="button" class="btn-secondary" id="save-checkpoint-btn">Save checkpoint</button>
+            <select id="checkpoint-select" class="fmt-select prod-input">
+              <option value="">No checkpoints saved yet</option>
+            </select>
+            <button type="button" class="btn-upload" id="restore-checkpoint-btn" disabled>Restore checkpoint</button>
+          </div>
+        </div>
+        </details>
+
+        <!-- Tier 1b · Backup & press package -->
+        <div class="prod-card" id="project-backup-card">
+          <div class="prod-card-head">
+            <h3>Backup &amp; Press Package</h3>
+            <p>A portable project file, or a deterministic press manifest with an FNV-1a checksum.</p>
+          </div>
+          <div class="prod-btn-row prod-btn-row--grid">
+            <button type="button" class="btn-secondary" id="export-project-json-btn">Download backup · .json</button>
+            <input type="file" id="import-project-json-input" accept=".json,application/json" hidden />
+            <button type="button" class="btn-upload" id="import-project-json-btn">Load project file</button>
+            <button type="button" class="btn-secondary" id="btn-export-press-manifest" title="Generate &amp; Download Deterministic Press-Ready Production Package Manifest">Export press manifest</button>
+          </div>
+          <span class="autosave-badge prod-checksum" id="press-manifest-checksum-badge" title="Deterministic FNV-1a Press Manifest Checksum">FNV-1a: —</span>
+        </div>
+      </div>
+      <div class="modal-foot" id="project-modal-foot">
+        <span class="modal-foot-note">Clears local auto-saved changes and restores the 12-page showcase.</span>
+        <button type="button" class="btn-page-action danger" id="reset-demo-project-btn">Reset to default demo magazine</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Order Physical Print Copy Checkout Modal -->
+  <div class="modal-overlay hidden" id="order-modal" role="dialog" aria-modal="true" aria-labelledby="order-modal-heading">
+    <div class="modal-sheet modal-medium ws7-sheet">
+      <div class="modal-top">
+        <div class="modal-title-block">
+          <span class="modal-eyebrow">Atelier Edition · Print order</span>
+          <h2 id="order-modal-heading">Order a Printed Edition</h2>
+          <p>Museum-grade archival printing on heavy-weight paper, delivered to your door.</p>
+        </div>
+        <button type="button" class="modal-close" id="close-order-modal-btn" aria-label="Close">&times;</button>
+      </div>
+      <div class="order-modal-body" id="order-modal-body">
+        <div class="order-config-grid">
+          <div class="order-form-col">
+            <div class="order-group-label">Edition</div>
+            <label class="order-label">
+              <span>Binding &amp; cover</span>
+              <select id="order-binding-select" class="order-input">
+                <option value="softcover">Perfect-Bound Softcover Magazine (₹999 base)</option>
+                <option value="hardcover">Luxury Linen Collector Hardcover (₹1,699 base)</option>
+                <option value="zine">Saddle-Stitched Archival Zine (₹799 base)</option>
+              </select>
+            </label>
+
+            <label class="order-label">
+              <span>Interior paper</span>
+              <select id="order-paper-select" class="order-input">
+                <option value="gloss">300 GSM High-Gloss Vogue Photo Paper (+₹0)</option>
+                <option value="matte">250 GSM Silk Fine-Art Matte (+₹150)</option>
+                <option value="archival">280 GSM Warm Textured Archival Cream (+₹250)</option>
+              </select>
+            </label>
+
+            <div class="order-two-up">
+              <label class="order-label">
+                <span>Cover finish</span>
+                <select id="order-finish-select" class="order-input">
+                  <option value="standard">Standard Satin Lamination (+₹0)</option>
+                  <option value="velvet">Soft-Touch Velvet Matte (+₹120)</option>
+                  <option value="foil">Gold Foil Embossed Cover (+₹250)</option>
+                </select>
+              </label>
+              <label class="order-label">
+                <span>Copies</span>
+                <input type="number" id="order-qty-input" class="order-input" min="1" max="50" value="1" />
+              </label>
+            </div>
+
+            <div class="order-group-label order-group-label--split">Delivery</div>
+            <label class="order-label">
+              <span>Recipient name</span>
+              <input type="text" id="order-name-input" class="order-input" placeholder="e.g. Aarav &amp; Meera Sharma" />
+            </label>
+
+            <label class="order-label">
+              <span>Address &amp; pincode</span>
+              <input type="text" id="order-address-input" class="order-input" placeholder="Street address, City, State &amp; Pincode" />
+            </label>
+
+            <label class="order-label">
+              <span>Promo code <em>optional</em></span>
+              <input type="text" id="order-promo-input" class="order-input" placeholder="ATELIER20 (20% off) · LOVE10 (10% off)" />
+            </label>
+          </div>
+
+          <div class="order-summary-col">
+            <div class="order-receipt-box">
+              <div class="receipt-header">Specification</div>
+              <div class="receipt-row"><span>Title</span><strong id="ord-sum-title">VOGUE</strong></div>
+              <div class="receipt-row"><span>Style</span><strong id="ord-sum-theme">Vogue Editorial</strong></div>
+              <div class="receipt-row"><span>Pages</span><strong id="ord-sum-pages">12 Pages</strong></div>
+              <div class="receipt-row"><span>Binding</span><strong id="ord-sum-binding">Perfect-Bound Softcover</strong></div>
+              <div class="receipt-row"><span>Paper</span><strong id="ord-sum-paper">300 GSM High-Gloss</strong></div>
+              <div class="receipt-header receipt-header--price">Price</div>
+              <div class="receipt-row"><span>Base issue (6 spreads)</span><strong id="ord-cost-base">₹999</strong></div>
+              <div class="receipt-row receipt-row--addon"><span>Extra spreads</span><strong id="ord-cost-extra-spreads">₹0 (0 extra)</strong></div>
+              <div class="receipt-row receipt-row--addon"><span>Paper upgrade</span><strong id="ord-cost-paper-upgrade">₹0</strong></div>
+              <div class="receipt-row receipt-row--addon"><span>Finish upgrade</span><strong id="ord-cost-finish-upgrade">₹0</strong></div>
+              <div class="receipt-row receipt-row--addon" id="ord-sum-discount-row"><span>Promo discount</span><strong id="ord-sum-discount">&mdash;</strong></div>
+              <div class="receipt-divider"></div>
+              <div class="receipt-row total"><span>Estimated total</span><strong id="ord-sum-price">₹999</strong></div>
+              <div class="receipt-row receipt-row--preflight"><span>Pre-flight</span><strong id="ord-sum-preflight" class="ok-text">✓ 300 DPI Print Ready</strong></div>
+            </div>
+
+            <button type="button" class="btn-primary order-submit-btn" id="place-print-order-btn">
+              Confirm Print Order &amp; Generate Order ID
+            </button>
+            <div class="order-confirmation-box hidden" id="order-confirmation-box">
+              <div class="order-success-banner-inner hidden" id="order-success-banner"></div>
+            </div>
+            <div class="order-history-section" id="order-history-section">
+              <div class="order-history-head">
+                <div class="receipt-header">Recent print orders</div>
+                <button type="button" class="btn-page-action danger" id="clear-order-history-btn">Clear history</button>
+              </div>
+              <div class="order-history-list" id="order-history-list"></div>
+              <div class="order-history-inspect hidden" id="order-history-inspect-box"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5B. In-App Photo Swap & Library Picker Modal -->
+  <div class="modal-overlay hidden" id="swap-photo-modal" role="dialog" aria-modal="true" aria-labelledby="swap-photo-modal-heading">
+    <div class="modal-sheet ws7-sheet ws8-sheet modal-md">
+      <div class="modal-top">
+        <div class="modal-title-block">
+          <span class="modal-eyebrow">Photo library</span>
+          <h2 id="swap-photo-modal-heading">Swap Photo &amp; Studio Library</h2>
+          <p id="swap-photo-modal-sub">Pick a photo from your library, upload a new one, or swap with another slot on this spread.</p>
+        </div>
+        <div class="modal-top-actions">
+          <button type="button" class="modal-close" id="close-swap-photo-modal-btn" aria-label="Close">&times;</button>
+        </div>
+      </div>
+      <div class="production-suite-body">
+        <div class="prod-card" id="swap-slot-exchange-card">
+          <h3>&#8644; Swap With Another Slot on Spread</h3>
+          <div class="prod-btn-row">
+            <select id="swap-slot-select" class="order-input" style="max-width:320px;" title="Select target slot on current spread"></select>
+            <button type="button" class="btn-secondary" id="swap-slot-confirm-btn">&#8644; Exchange Photos &amp; Crops</button>
+          </div>
+        </div>
+        <div class="prod-card">
+          <h3>Studio &amp; Uploaded Photo Library</h3>
+          <div class="swap-photo-library-grid" id="swap-photo-library-grid"></div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <div class="modal-foot-group">
+          <button type="button" class="btn-upload" id="auto-fill-empty-slots-btn" title="Fill every empty photo slot in the magazine">Auto-Fill Empty Slots</button>
+          <button type="button" class="btn-upload" id="auto-fill-spread-modal-btn" title="Fill this spread with distinct photos">Auto-Fill Spread</button>
+        </div>
+        <button type="button" class="btn-primary" id="swap-upload-device-btn">+ Upload New Photo from Device</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5C. Individual Page Custom Background Image Modal -->
+  <div class="modal-overlay hidden" id="page-bg-modal" role="dialog" aria-modal="true" aria-labelledby="page-bg-modal-heading">
+    <div class="modal-sheet ws7-sheet ws8-sheet modal-md">
+      <div class="modal-top">
+        <div class="modal-title-block">
+          <span class="modal-eyebrow">Individual Page Background</span>
+          <h2 id="page-bg-modal-heading">Set Custom Page Background Image</h2>
+          <p id="page-bg-modal-sub">Upload your own custom background image or choose from your photo library for this individual page.</p>
+        </div>
+        <div class="modal-top-actions">
+          <button type="button" class="modal-close" id="close-page-bg-modal-btn" aria-label="Close">&times;</button>
+        </div>
+      </div>
+      <div class="production-suite-body">
+        <div class="prod-card">
+          <h3>Target Page &amp; Background Adjustments</h3>
+          <div class="page-bg-controls-grid">
+            <label class="order-label">
+              <span>Editing Page</span>
+              <select id="page-bg-target-select" class="order-input" title="Choose which individual page to customize"></select>
+            </label>
+            <label class="order-label">
+              <span>Image Fit Mode</span>
+              <select id="page-bg-fit-select" class="order-input" title="Background image scaling">
+                <option value="cover">Cover (Full-Bleed Page)</option>
+                <option value="contain">Contain (Fit Whole Image)</option>
+              </select>
+            </label>
+            <label class="order-label">
+              <span>Background Opacity (<strong id="page-bg-opacity-label">45%</strong>)</span>
+              <input type="range" id="page-bg-opacity-slider" min="10" max="100" value="45" class="fmt-slider" style="width:100%;" />
+            </label>
+            <label class="order-label">
+              <span>Soft Depth Blur (<strong id="page-bg-blur-label">0px</strong>)</span>
+              <input type="range" id="page-bg-blur-slider" min="0" max="16" value="0" class="fmt-slider" style="width:100%;" />
+            </label>
+            <label class="order-label" style="grid-column: 1 / -1;">
+              <span>Text Readability Wash / Scrim</span>
+              <select id="page-bg-tint-select" class="order-input" title="Optional contrast wash over background image so text stays legible">
+                <option value="none">None (Pure Image)</option>
+                <option value="light">Warm Ivory Wash (Best for Dark Text)</option>
+                <option value="dark">Noir Cinema Scrim (Switches Page Text to Crisp Ivory)</option>
+              </select>
+            </label>
+          </div>
+          <div class="page-bg-status-bar" id="page-bg-status-bar">
+            <span id="page-bg-status-text">No custom background image set on this page (using paper stock).</span>
+          </div>
+        </div>
+        <div class="prod-card">
+          <h3>Choose Background from Uploaded &amp; Studio Library</h3>
+          <div class="swap-photo-library-grid" id="page-bg-library-grid"></div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <div class="modal-foot-group">
+          <button type="button" class="btn-page-action danger" id="clear-page-bg-btn" title="Remove custom background image from this page">✕ Remove Page BG</button>
+          <button type="button" class="btn-upload" id="apply-page-bg-both-btn" title="Copy this page's custom background image &amp; settings to the other page on this spread">Apply to Both Pages on Spread</button>
+        </div>
+        <input type="file" id="page-bg-file-input" accept="image/jpeg,image/png,image/webp" hidden />
+        <button type="button" class="btn-primary" id="upload-page-bg-btn">+ Upload Custom Image from Device</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Account Sign-In, Multi-User Isolation & Gift Privacy PIN Lock Modal -->
+  <div class="modal-overlay hidden" id="account-auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-heading">
+    <div class="modal-sheet ws7-sheet ws8-sheet modal-sm">
+      <div class="modal-top">
+        <div class="modal-title-block">
+          <span class="modal-eyebrow">Account</span>
+          <h2 id="auth-modal-heading">Account Session &amp; Gift Privacy Lock</h2>
+          <p id="auth-status-sub">Currently designing in Guest Session (auto-saved locally).</p>
+        </div>
+        <button type="button" class="modal-close" id="close-auth-modal-btn" aria-label="Close">&times;</button>
+      </div>
+      <div class="production-suite-body">
+        <div class="prod-card">
+          <h3>Sign In / Switch Collector Profile</h3>
+          <p>Sign in with your email to isolate your magazine workspace on shared computers and auto-fill checkout details.</p>
+          <div class="order-config-grid">
+            <label class="order-label">
+              <span>Full Name</span>
+              <input type="text" id="auth-name-input" class="order-input" placeholder="e.g. Aarav Sharma" />
+            </label>
+            <label class="order-label">
+              <span>Email Address</span>
+              <input type="email" id="auth-email-input" class="order-input" placeholder="e.g. aarav@example.com" />
+            </label>
+          </div>
+          <div class="prod-btn-row">
+            <button type="button" class="btn-primary" id="auth-signin-btn">Sign In &amp; Bind Magazine</button>
+            <button type="button" class="btn-page-action danger hidden" id="auth-signout-btn">Sign Out of Profile</button>
+          </div>
+        </div>
+
+        <div class="prod-card">
+          <h3>Surprise Gift Privacy PIN Lock</h3>
+          <p>Set a 4-digit PIN to lock the magazine screen on a shared computer so no one can peek.</p>
+          <div class="prod-btn-row">
+            <input type="text" inputmode="numeric" autocomplete="off" id="auth-pin-input" class="order-input pin-masked-input ws8-pin-input" maxlength="4" placeholder="4-digit PIN" />
+            <button type="button" class="btn-secondary" id="lock-magazine-now-btn">Lock Magazine Screen Now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full-Screen Surprise Gift Privacy Lock Shield -->
+  <div class="modal-overlay hidden" id="privacy-lock-overlay" role="dialog" aria-modal="true" aria-labelledby="lock-shield-heading" style="backdrop-filter:blur(24px);background:rgba(12,10,9,0.96);z-index:350;">
+    <div class="modal-sheet" style="width:420px;padding:28px;text-align:center;gap:14px;">
+      <h2 id="lock-shield-heading">Private Gift Edition Locked</h2>
+      <p style="font-size:13px;color:#78716C;">Enter your 4-digit Gift Privacy PIN to unlock and continue editing.</p>
+      <input type="text" inputmode="numeric" autocomplete="off" id="unlock-pin-input" class="order-input pin-masked-input" maxlength="4" placeholder="Enter 4-digit PIN" style="text-align:center;font-size:18px;letter-spacing:0.3em;" />
+      <button type="button" class="btn-primary" id="unlock-magazine-btn">Unlock Magazine</button>
+    </div>
+  </div>
+
+  <!-- 6B. Keyboard Shortcuts Cheat-Sheet Modal -->
+  <div class="modal-overlay hidden" id="shortcuts-modal" role="dialog" aria-modal="true" aria-labelledby="shortcuts-modal-heading">
+    <div class="modal-sheet ws7-sheet ws8-sheet modal-md">
+      <div class="modal-top">
+        <div class="modal-title-block">
+          <span class="modal-eyebrow">Reference</span>
+          <h2 id="shortcuts-modal-heading">Shortcuts &amp; canvas gestures</h2>
+          <p>How to edit, remove and restore on the page &mdash; plus every keyboard shortcut.</p>
+        </div>
+        <button type="button" class="modal-close" id="close-shortcuts-modal-btn" aria-label="Close">&times;</button>
+      </div>
+      <div class="production-suite-body">
+        <div class="prod-card" id="shortcuts-editing-card">
+          <h3>Editing the page</h3>
+          <div class="shortcuts-grid">
+            <div class="receipt-row"><span>Edit any headline, caption or story:</span><strong>Click the text</strong></div>
+            <div class="receipt-row"><span>Remove an element (restorable):</span><strong>Hover &rarr; &times; Remove, or Shift+Delete while editing</strong></div>
+            <div class="receipt-row"><span>Remove a selected photo frame, sticker or text box:</span><strong>Delete / Backspace</strong></div>
+            <div class="receipt-row"><span>Restore a removed element:</span><strong>Click &#8634; Restore on the page, or Ctrl+Z</strong></div>
+            <div class="receipt-row"><span>Reposition a photo inside its frame:</span><strong>Drag the photo</strong></div>
+            <div class="receipt-row"><span>Move a sticker or text box:</span><strong>Drag its &#10021; handle</strong></div>
+            <div class="receipt-row"><span>Add text anywhere:</span><strong>Double-click empty paper</strong></div>
+          </div>
+        </div>
+        <div class="prod-card">
+          <h3>Canvas, Layering &amp; Selection</h3>
+          <div class="shortcuts-grid">
+            <div class="receipt-row"><span>Undo / Redo History:</span><strong>Ctrl+Z / Ctrl+Y (Ctrl+Shift+Z)</strong></div>
+            <div class="receipt-row"><span>Duplicate Selected Text or Sticker:</span><strong>Ctrl+D / Cmd+D</strong></div>
+            <div class="receipt-row"><span>Send Layer to Back / Bring to Front:</span><strong>[ / ]</strong></div>
+            <div class="receipt-row"><span>Fine Nudge Selected Text/Sticker or Pan Slot:</span><strong>ArrowLeft / Right / Up / Down</strong></div>
+            <div class="receipt-row"><span>Coarse 5× Nudge / Pan Step:</span><strong>Shift + Arrow Keys</strong></div>
+            <div class="receipt-row"><span>Delete Selected Floating Layer:</span><strong>Delete / Backspace</strong></div>
+            <div class="receipt-row"><span>Toggle Editorial Layout Guides:</span><strong>G</strong></div>
+            <div class="receipt-row"><span>Deselect / Close Active Modal / Exit Reader:</span><strong>Escape</strong></div>
+            <div class="receipt-row"><span>Open Keyboard Shortcuts Cheat-Sheet:</span><strong>? (Shift + /)</strong></div>
+          </div>
+        </div>
+        <div class="prod-card">
+          <h3>Spread &amp; Reader Navigation</h3>
+          <div class="shortcuts-grid">
+            <div class="receipt-row"><span>Previous / Next Spread (when no layer selected):</span><strong>ArrowLeft / ArrowRight</strong></div>
+            <div class="receipt-row"><span>Jump to Front Cover Spread / Final Spread:</span><strong>Home / End</strong></div>
+            <div class="receipt-row"><span>Advance Spread in Reader Mode:</span><strong>Space</strong></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <span class="modal-foot-note">Tips strip hidden? Bring it back under the toolbar.</span>
+        <button type="button" class="btn-secondary" id="show-canvas-hints-btn">Show tips strip again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Live Production QA Self-Test Runner & Master Test Sheet Modal -->
+  <div class="modal-overlay hidden" id="qa-suite-modal" role="dialog" aria-modal="true" aria-labelledby="qa-modal-heading">
+    <div class="modal-sheet ws7-sheet ws8-sheet modal-lg">
+      <div class="modal-top">
+        <div class="modal-title-block">
+          <span class="modal-eyebrow">QA suite · 26 suites · 315 cases</span>
+          <h2 id="qa-modal-heading">Production QA Test Suite &amp; Master Test Sheet</h2>
+          <p id="qa-summary-subtitle">26 Test Suites (315 Test Cases) covering Auth, 4 Styles, 15 Collages, Dynamic Pages, Text/Stickers, Crop/Filters, Auto-Save, Print, Security &amp; Round 1–10 Master E2E.</p>
+        </div>
+        <div class="modal-top-actions">
+          <button type="button" class="modal-close" id="close-qa-modal-btn" aria-label="Close">&times;</button>
+        </div>
+      </div>
+      <div class="production-suite-body" id="qa-results-container"></div>
+      <div class="modal-foot">
+        <a href="production_qa_test_sheet.csv" download="production_qa_test_sheet.csv" class="btn-upload ws8-foot-link">Download Test Sheet</a>
+        <button type="button" class="btn-primary" id="run-automated-qa-btn">Run All Checks</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Non-blocking Studio Toast -->
+  <div class="studio-toast hidden" id="studio-toast" role="status" aria-live="polite"></div>
+
+  <!-- Hidden single-photo swapper input -->
+  <input type="file" id="single-photo-swap-input" accept="image/jpeg,image/png,image/webp" hidden />
+
+  <!-- Print Container -->
+  <div class="print-all-pages" id="print-all-pages" aria-hidden="true"></div>
+
+  <script src="app.js?v=20261018-ux2-15"></script>
+  <script src="ui-refresh.js?v=20261018-ux2-15"></script>
+  <script src="analytics.js?v=20261018-ux2-15"></script>
+</body>
+</html>

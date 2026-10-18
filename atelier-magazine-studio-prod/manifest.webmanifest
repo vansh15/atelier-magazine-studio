@@ -1,0 +1,26 @@
+{
+  "name": "Atelier Edition — Collage Magazine & Keepsake Studio",
+  "short_name": "Atelier Studio",
+  "description": "Design custom photo collage magazines and keepsake books with 15 creative collage templates, 4 editorial themes, 300-DPI print PDF export, and print checkout.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#161311",
+  "theme_color": "#161311",
+  "orientation": "any",
+  "categories": ["photo", "design", "lifestyle", "productivity"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%23B8293D'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' fill='%23FAF7F2' font-family='Georgia,serif' font-weight='bold' font-size='114'%3EM%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%23B8293D'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' fill='%23FAF7F2' font-family='Georgia,serif' font-weight='bold' font-size='304'%3EM%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
